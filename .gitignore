@@ -1,0 +1,19 @@
+# Сгенерированные данные (собираются tools/DataBuilder, слишком большие для git)
+/data/
+
+# Python
+tools/DataBuilder/.venv/
+tools/DataBuilder/.cache/
+__pycache__/
+*.pyc
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+artifacts/
+publish/
+
+# Тесты и отладка
+TestResults/

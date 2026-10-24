@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="HoverTranslate.App.Popup.PopupWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="HoverTranslate">
+
+    <Grid x:Name="Root" Width="380" Background="Transparent">
+        <Grid.Resources>
+            <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="6" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+            <Style x:Key="IconToggleStyle" TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="6" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+            </Style>
+            <Storyboard x:Name="SkeletonPulse" RepeatBehavior="Forever" AutoReverse="True">
+                <DoubleAnimation Storyboard.TargetName="Skeleton" Storyboard.TargetProperty="Opacity"
+                                 From="0.35" To="0.9" Duration="0:0:0.8" />
+            </Storyboard>
+        </Grid.Resources>
+
+        <Grid.ContextFlyout>
+            <!-- В пределах окна: отдельное окно меню могло бы забрать фокус у игры. -->
+            <MenuFlyout x:Name="CopyMenu" ShouldConstrainToRootBounds="True">
+                <MenuFlyoutItem x:Name="CopyWordItem" Text="Копировать слово" Click="CopyWord_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8C8;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="CopyTranslationItem" Text="Копировать перевод слова" Click="CopyTranslation_Click" />
+                <MenuFlyoutItem x:Name="CopySentenceItem" Text="Копировать предложение" Click="CopySentence_Click" />
+                <MenuFlyoutItem x:Name="CopySentenceRuItem" Text="Копировать перевод предложения" Click="CopySentenceRu_Click" />
+            </MenuFlyout>
+        </Grid.ContextFlyout>
+
+        <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled">
+            <StackPanel x:Name="Body" Padding="16,12,16,14" Spacing="12" SizeChanged="Body_SizeChanged">
+
+                <!-- Сообщение (ошибка, «слово не найдено») -->
+                <Grid x:Name="MessagePanel" Visibility="Collapsed" ColumnSpacing="10" Padding="0,2,96,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon Glyph="&#xE946;" FontSize="18" VerticalAlignment="Top" Margin="0,2,0,0"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock x:Name="MessageText" TextWrapping="Wrap" FontWeight="SemiBold" />
+                        <TextBlock x:Name="MessageHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Загрузка: пока ищется/распознаётся текст -->
+                <Grid x:Name="LoadingPanel" Visibility="Collapsed" ColumnSpacing="12" Padding="0,2,96,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ProgressRing x:Name="LoadingRing" Width="20" Height="20" IsActive="False" VerticalAlignment="Center" />
+                    <TextBlock x:Name="LoadingText" Grid.Column="1" VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </Grid>
+
+                <!-- 1. Перевод предложения -->
+                <Border x:Name="TranslatorBlock" CornerRadius="6" Padding="12,8,12,10"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                    <StackPanel Spacing="6">
+                        <TextBlock x:Name="TranslatorHeader" Text="ПЕРЕВОД ПРЕДЛОЖЕНИЯ" Margin="0,4,84,0" CharacterSpacing="60"
+                                   Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock x:Name="SentenceRuText" TextWrapping="Wrap" FontSize="15" />
+                        <Grid x:Name="EngineRow" ColumnSpacing="8" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TranslatorNote" TextWrapping="Wrap" VerticalAlignment="Center"
+                                       Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <ToggleButton x:Name="LocalEngineButton" Content="Локально" Padding="8,2,8,3" MinHeight="0" CornerRadius="11"
+                                              Click="LocalEngine_Click" ToolTipService.ToolTip="Встроенный перевод (на этом компьютере)" />
+                                <ToggleButton x:Name="CloudEngineButton" Content="Облако" Padding="8,2,8,3" MinHeight="0" CornerRadius="11"
+                                              Click="CloudEngine_Click" ToolTipService.ToolTip="Перевод Gemini: предложение уйдёт в Google" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel x:Name="Skeleton" Spacing="7" Opacity="0.6">
+                            <Rectangle Height="11" RadiusX="3" RadiusY="3" Fill="{ThemeResource ControlStrongFillColorDisabledBrush}" />
+                            <Rectangle Height="11" RadiusX="3" RadiusY="3" Fill="{ThemeResource ControlStrongFillColorDisabledBrush}" />
+                            <Rectangle Height="11" RadiusX="3" RadiusY="3" Width="190" HorizontalAlignment="Left"
+                                       Fill="{ThemeResource ControlStrongFillColorDisabledBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Словарь -->
+                <StackPanel x:Name="DictBlock" Spacing="6">
+                    <!-- Фраза и слово: «give up | give» -->
+                    <StackPanel x:Name="EntryTabs" Orientation="Horizontal" Spacing="6" Margin="0,0,84,0" Visibility="Collapsed" />
+                    <StackPanel x:Name="WordRow" Orientation="Horizontal" Spacing="6">
+                        <TextBlock x:Name="WordText" FontSize="26" FontWeight="SemiBold" VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" MaxWidth="220" />
+                        <Button x:Name="SpeakWordButton" Style="{StaticResource IconButtonStyle}" Click="SpeakWord_Click"
+                                ToolTipService.ToolTip="Произнести">
+                            <FontIcon Glyph="&#xE767;" FontSize="16" />
+                        </Button>
+                        <Border x:Name="CefrBadge" CornerRadius="4" Padding="6,1,6,2" VerticalAlignment="Center">
+                            <TextBlock x:Name="CefrText" FontSize="12" FontWeight="SemiBold" Foreground="White" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock x:Name="IpaPosText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <TextBlock x:Name="TranslationText" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Visibility="Collapsed" />
+                    <TextBlock x:Name="DefinitionText" TextWrapping="Wrap" />
+                    <TextBlock x:Name="SynonymsText" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="NotInDictText" Text="Слова нет в словаре." Visibility="Collapsed"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                    <Expander x:Name="SensesExpander" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                              >
+                        <Expander.Header>
+                            <TextBlock x:Name="SensesHeader" Text="Другие значения" />
+                        </Expander.Header>
+                        <StackPanel x:Name="SensesPanel" Spacing="8" />
+                    </Expander>
+                </StackPanel>
+
+                <!-- 3. Контекст -->
+                <Expander x:Name="ContextExpander" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                          >
+                    <Expander.Header>
+                        <TextBlock x:Name="ContextHeader" Text="Контекст" />
+                    </Expander.Header>
+                    <StackPanel Spacing="8">
+                        <Grid ColumnSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <RichTextBlock x:Name="SentenceText" TextWrapping="Wrap" IsTextSelectionEnabled="False" />
+                            <Button x:Name="SpeakSentenceButton" Grid.Column="1" Style="{StaticResource IconButtonStyle}"
+                                    VerticalAlignment="Top" Click="SpeakSentence_Click" ToolTipService.ToolTip="Произнести предложение">
+                                <FontIcon Glyph="&#xE767;" FontSize="14" />
+                            </Button>
+                        </Grid>
+                        <TextBlock x:Name="SourceText" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопки в правом верхнем углу -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Spacing="0">
+            <Button x:Name="BookmarkButton" Style="{StaticResource IconButtonStyle}" Click="Bookmark_Click"
+                    ToolTipService.ToolTip="Добавить в избранное">
+                <FontIcon x:Name="BookmarkIcon" Glyph="&#xE734;" FontSize="15" />
+            </Button>
+            <ToggleButton x:Name="PinButton" Style="{StaticResource IconToggleStyle}" Click="Pin_Click"
+                          ToolTipService.ToolTip="Закрепить (окно не закрывается)">
+                <FontIcon Glyph="&#xE718;" FontSize="15" />
+            </ToggleButton>
+            <Button x:Name="CloseButton" Style="{StaticResource IconButtonStyle}" Click="Close_Click" ToolTipService.ToolTip="Закрыть (Esc)">
+                <FontIcon Glyph="&#xE711;" FontSize="13" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

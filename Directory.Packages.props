@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Только WinUI-компонент Windows App SDK: метапакет тянет WindowsAppSDK.ML со своим onnxruntime.dll,
+         который конфликтует с Microsoft.ML.OnnxRuntime. -->
+    <PackageVersion Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <!-- WinUI 2.3.9 ссылается на InteractiveExperiences 2.1.8, которой нет в nuget.org: закрепляем
+         зависимости явно (как в метапакете Microsoft.WindowsAppSDK 2.5.1). -->
+    <PackageVersion Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.1.9" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK.Foundation" Version="2.3.12" />
+    <PackageVersion Include="Microsoft.WindowsAppSDK.Base" Version="2.0.4" />
+    <PackageVersion Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2270" />
+    <PackageVersion Include="Interop.UIAutomationClient" Version="10.19041.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" />
+    <PackageVersion Include="Microsoft.ML.Tokenizers" Version="2.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.13" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageVersion Include="xunit.v3" Version="4.0.2" />
+  </ItemGroup>
+</Project>

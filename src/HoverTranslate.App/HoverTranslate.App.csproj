@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>HoverTranslate</AssemblyName>
+    <RootNamespace>HoverTranslate.App</RootNamespace>
+    <UseWinUI>true</UseWinUI>
+    <!-- Unpackaged + self-contained: обычный exe без MSIX, Windows App SDK и .NET внутри. -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\HoverTranslate.ico</ApplicationIcon>
+    <!-- Собственный Main: проверка единственного экземпляра до запуска WinUI. -->
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\HoverTranslate.ico" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Данные из tools/DataBuilder (в git не хранятся) кладутся рядом с exe: data\dict.db, data\models\... -->
+    <None Include="..\..\data\dict.db" Link="data\dict.db" CopyToOutputDirectory="PreserveNewest"
+          Condition="Exists('..\..\data\dict.db')" />
+    <None Include="..\..\data\models\opus-mt-en-ru\*" Exclude="..\..\data\models\opus-mt-en-ru\tokenizer_golden.json"
+          Link="data\models\opus-mt-en-ru\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Запасной OCR (PaddleOCR): необязательные модели, без них приложение работает на Windows OCR. -->
+    <None Include="..\..\data\models\ppocr\*.onnx" Link="data\models\ppocr\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- dotnet publish не кладёт HoverTranslate.pri (в нём скомпилированный XAML окон): без него любое окно падает
+       с XamlParseException. Собственный target SDK (AddProjectPriToResolvedFileToPublish) его не добавляет, поэтому явно. -->
+  <Target Name="PublishProjectPri" AfterTargets="ComputeResolvedFilesToPublishList" Condition="Exists('$(OutDir)$(TargetName).pri')">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="$(OutDir)$(TargetName).pri" />
+      <ResolvedFileToPublish Include="$(OutDir)$(TargetName).pri">
+        <RelativePath>$(TargetName).pri</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HoverTranslate.Core\HoverTranslate.Core.csproj" />
+  </ItemGroup>
+
+</Project>

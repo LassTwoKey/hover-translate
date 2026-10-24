@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
+    <Platforms>x64</Platforms>
+    <!-- Один путь вывода (bin/x64/...) и при сборке решения, и отдельного проекта. -->
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <Company>HoverTranslate</Company>
+    <Product>HoverTranslate</Product>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

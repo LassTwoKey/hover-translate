@@ -1,0 +1,92 @@
+﻿HoverTranslate — лицензии и авторство данных
+=============================================
+
+HoverTranslate работает полностью на вашем компьютере: словарь и модель перевода лежат в папке
+data рядом с программой. По умолчанию сетевых запросов программа не делает. Единственное исключение —
+необязательный облачный перевод предложений через Google Gemini: он выключен, пока вы сами не включите
+его в «Настройках» и не введёте свой ключ; тогда переводимые предложения и области экрана отправляются в Google.
+
+Данные, которые входят в поставку
+---------------------------------
+
+1. Словарь (data\dict.db)
+   Статьи, определения, примеры, транскрипции, синонимы и русские переводы взяты из английского
+   Викисловаря (Wiktionary contributors), разобранного проектом wiktextract
+   (Tatu Ylonen, https://github.com/tatuylonen/wiktextract, https://kaikki.org).
+   Лицензия: Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)
+   https://creativecommons.org/licenses/by-sa/4.0/ — и GFDL, как у самого Викисловаря.
+   Файл dict.db — производная работа от Викисловаря и распространяется на тех же условиях
+   (CC BY-SA 4.0). Исходный дамп: 2026-09-02.
+   Ylonen T. Wiktextract: Wiktionary as Machine-Readable Structured Data. LREC 2022.
+
+2. Уровни CEFR A1–B2
+   The CEFR-J Wordlist Version 1.5. Compiled by Yukio Tono, Tokyo University of Foreign Studies.
+   Получено через Open Language Profiles (https://github.com/openlanguageprofiles/olp-en-cefrj).
+   Свободно для исследований и коммерческого использования при условии указания источника.
+
+3. Уровни CEFR C1–C2
+   Octanove Vocabulary Profile C1/C2 1.0, Octanove Labs (лицензия CC BY-SA 4.0).
+
+4. Частотность слов
+   wordfreq 3.1, Robyn Speer (https://github.com/rspeer/wordfreq).
+   Код — Apache 2.0, данные — CC BY-SA 4.0.
+
+5. Модель перевода (data\models\opus-mt-en-ru)
+   Helsinki-NLP/opus-mt-en-ru (https://huggingface.co/Helsinki-NLP/opus-mt-en-ru), лицензия CC BY 4.0.
+   Модель переведена в формат ONNX и квантована до int8; смысл и обучение модели не менялись.
+   Tiedemann J., Thottingal S. OPUS-MT — Building open translation services for the World. EAMT 2020.
+
+6. Запасное распознавание текста (data\models\ppocr, необязательно)
+   PaddleOCR PP-OCRv4: детектор текста и распознаватель строк (PaddlePaddle Authors, Baidu),
+   лицензия Apache 2.0 (https://github.com/PaddlePaddle/PaddleOCR). Файлы в формате ONNX взяты из пакета
+   rapidocr-onnxruntime 1.4.4 (RapidAI, Apache 2.0, https://github.com/RapidAI/RapidOCR) без изменений.
+
+Программные компоненты
+----------------------
+
+Программа собрана с самодостаточными (self-contained) библиотеками; их лицензии разрешают
+распространение вместе с программой:
+
+- .NET и библиотеки Microsoft.Extensions.* — MIT, Microsoft Corporation.
+- Windows App SDK / WinUI 3 — MIT, Microsoft Corporation.
+- ONNX Runtime (Microsoft.ML.OnnxRuntime) — MIT, Microsoft Corporation.
+- Microsoft.ML.Tokenizers — MIT, Microsoft Corporation.
+- SQLite и Microsoft.Data.Sqlite / SQLitePCLRaw — SQLite в общественном достоянии;
+  обёртки — Apache 2.0 / MIT.
+- Serilog и Serilog.Sinks.File — Apache 2.0, Serilog Contributors.
+- Interop.UIAutomationClient — см. страницу пакета на https://www.nuget.org.
+
+Полные тексты лицензий доступны на страницах соответствующих проектов.
+
+Сама программа HoverTranslate (исходный код, без данных выше) распространяется без каких-либо гарантий.
+
+---
+
+HoverTranslate — licences and data attribution
+==============================================
+
+HoverTranslate runs entirely on your computer. The dictionary and the translation model are stored in
+the data folder next to the program, and the program makes no network requests.
+
+Bundled data
+------------
+
+- Dictionary (data\dict.db): derived from English Wiktionary (Wiktionary contributors), parsed by
+  wiktextract / kaikki.org (Tatu Ylonen). Licensed under CC BY-SA 4.0 and GFDL. dict.db is a derivative
+  work and is distributed under CC BY-SA 4.0. Source dump: 2026-09-02.
+- CEFR A1-B2: The CEFR-J Wordlist Version 1.5. Compiled by Yukio Tono, Tokyo University of Foreign Studies
+  (via Open Language Profiles). Free for research and commercial use with attribution.
+- CEFR C1-C2: Octanove Vocabulary Profile C1/C2 1.0, Octanove Labs (CC BY-SA 4.0).
+- Word frequency: wordfreq 3.1 by Robyn Speer (code Apache 2.0, data CC BY-SA 4.0).
+- Translation model: Helsinki-NLP/opus-mt-en-ru (CC BY 4.0), converted to ONNX and quantised to int8.
+  Tiedemann J., Thottingal S. OPUS-MT - Building open translation services for the World. EAMT 2020.
+
+- Fallback text recognition (data\models\ppocr, optional): PaddleOCR PP-OCRv4 detection and recognition
+  models (PaddlePaddle Authors, Apache 2.0) in ONNX form from rapidocr-onnxruntime 1.4.4 (RapidAI, Apache 2.0),
+  unmodified.
+
+Optional cloud translation (off by default): Google Gemini API, called with the user's own API key; text sent
+to it is processed under Google's terms (https://ai.google.dev/gemini-api/terms). No key is bundled.
+
+Software components: .NET, Windows App SDK, ONNX Runtime and Microsoft.ML.Tokenizers (MIT);
+SQLite (public domain), Microsoft.Data.Sqlite (MIT); Serilog (Apache 2.0).
